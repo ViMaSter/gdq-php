@@ -89,6 +89,39 @@
 			echo $output;
 		}
 
+		private static function at($eventShort, $query)
+		{
+			if (count($query) < 1)
+			{
+				echo "`!gdq at` benötigt einen Zeitpunkt als Parameter! (bspw. `!gdq at friday`)";
+			}
+
+			// setup internal data
+			$event = new GDQ\Event($eventShort, strtotime($query[0]));
+			$nextRuns = $event->GetNextRuns(20);
+
+			if (count($nextRuns) == 0)
+			{
+				echo "Kein GDQ gerade. Ich finds auch schade. : (";
+				return;
+			}
+
+			$schedule = array();
+			foreach ($nextRuns as $run)
+			{
+				array_push($schedule, sprintf("%s Uhr: **%s**", date("H:i", $run->startTime), $run->gameName));
+			}
+
+			$output = "";
+			do
+			{
+				$output = implode(" | ", $schedule);
+				array_pop($schedule);
+			} while (strlen($output) > 400);
+
+			echo $output;
+		}
+
 		public static function Parse($eventShort, $rawQuery)
 		{
 			$methodsAvailable = get_class_methods(new self());
